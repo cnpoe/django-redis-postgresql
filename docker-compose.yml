@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  web:
+  mydjango:
     restart: 
       always
     build:
@@ -24,8 +24,6 @@ services:
       ./nginx/
     ports:
       - "80:80"
-    volumes_from:
-      - mydjango
     links:
       - mydjango:mydjango
   postgres:
@@ -33,13 +31,11 @@ services:
       always
     image: 
       postgres:latest
-    volumes_from:
-      - data
     volumes:
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./backups/postgresql:/backup
     env_file:
-      - env
+      - postgres-variables.env
     expose:
       - "5432"
   redis:

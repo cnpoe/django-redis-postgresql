@@ -1,6 +1,6 @@
-web:
+mydjango:
 	restart: always
-	build: ./web/
+	build: ./mydjango/
 	expose:
 		- "8000"
 	links:
@@ -8,7 +8,7 @@ web:
 		- redis:redis
 	env_file: env
 	volumes:
-		- ./web:/data/web
+		- ./mydjango:/data/mydjango
 	command: /usr/bin/gunicorn mydjango-wsgi:application -w 2 -b :8000
 nginx:
 	restart: always
@@ -16,9 +16,9 @@ nginx:
 	ports:
 		- "80:80"
 	volumes_from:
-		- web
+		- mydjango
 	links:
-		- web:web
+		- mydjango:mydjango
 postgres:
 	restart: always
 	image: postgres:latest

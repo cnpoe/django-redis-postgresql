@@ -2,58 +2,55 @@ version: '3'
 
 services:
   mydjango:
-    restart: 
-      always
     build:
       ./mydjango/
-    expose:
-      - "8000"
-    links:
-      - postgres:postgres
-      - redis:redis
-    env_file:
-      postgres-variables.env
+    # links:
+    #   - postgres:postgres
+    #   - redis:redis
+    # env_file:
+    #   postgres-variables.env
     volumes:
       - ./mydjango:/data/web
     command:
-      python3 manage.py makemigrations
-      python3 manage.py migrate
-      python3 manage.py runserver 0.0.0.0:8000
-      /usr/bin/gunicorn mydjango-wsgi:application -w 2 -b :8000
+      /usr/bin/gunicorn mydjango.wsgi:application -w 2 -b :8000
+    networks: 
+      - nginx_network
   nginx:
-    restart: 
-      always
-    build: 
-      ./nginx/
+    image:
+      nginx:1.13
     ports:
-      - "80:80"
-    links:
-      - mydjango:mydjango
-  postgres:
-    restart: 
-      always
-    image: 
-      postgres:latest
+      - "8000:80"
     volumes:
-      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - ./backups/postgresql:/backup
-    env_file:
-      - postgres-variables.env
-    expose:
-      - "5432"
-  redis:
-    restart: 
-      always
-    image: 
-      redis:latest
-    expose:
-      - "6379"
-  data:
-    restart: 
-      always
-    image: 
-      alpine
-    volumes:
-      - /var/lib/postgresql
-    command: 
-      "true"
+      - ./nginx/conf.d/:/etc/nginx/conf.d
+    depends_on:
+      - mydjango
+    networks: 
+      - nginx_network
+networks: 
+  nginx_network:
+    driver:
+      bridge
+  # postgres:
+  #   restart: 
+  #     always
+  #   image: 
+  #     postgres:latest
+  #   volumes:
+  #     - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  #     - ./backups/postgresql:/backup
+  #   env_file:
+  #     - postgres-variables.env
+  #   expose:
+  #     - "5432"
+  # redis:
+  #   image: 
+  #     redis:latest
+  #   expose:
+  #     - "6379"
+  # data:
+  #   image: 
+  #     alpine
+  #   volumes:
+  #     - /var/lib/postgresql
+  #   command: 
+  #     "true"

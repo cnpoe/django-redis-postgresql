@@ -12,7 +12,7 @@ services:
     volumes:
       - ./mydjango:/data/web
     command:
-      /usr/bin/gunicorn mydjango.wsgi:application -w 2 -b :8000
+      gunicorn mydjango.wsgi:application -w 2 -b :8000
     networks: 
       - nginx_network
   nginx:

@@ -7,14 +7,19 @@ services:
     # links:
     #   - postgres:postgres
     #   - redis:redis
-    # env_file:
-    #   postgres-variables.env
+    env_file:
+      postgres-variables.env
     volumes:
       - ./mydjango:/data/web
+      - static_volume:/data/web/mydjango/static/
+      - media_volume:/data/web/mydjango/media/
     command:
       gunicorn mydjango.wsgi:application -w 2 -b :8000
     networks: 
       - nginx_network
+      - db_pr_web_network
+    depends_on:
+      - db_pr_web
   nginx:
     image:
       nginx:1.13
@@ -22,26 +27,22 @@ services:
       - "8000:80"
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d
+      - static_volume:/data/web/mydjango/static/
+      - media_volume:/data/web/mydjango/media/
     depends_on:
       - mydjango
     networks: 
       - nginx_network
-networks: 
-  nginx_network:
-    driver:
-      bridge
-  # postgres:
-  #   restart: 
-  #     always
-  #   image: 
-  #     postgres:latest
-  #   volumes:
-  #     - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-  #     - ./backups/postgresql:/backup
-  #   env_file:
-  #     - postgres-variables.env
-  #   expose:
-  #     - "5432"
+  db_pr_web:
+    image: 
+      postgres:latest
+    env_file:
+      - postgres-variables.env
+    networks:
+      - db_pr_web_network
+    volumes:
+      - db_pr_web_volume:/var/lib/postgresql/data
+      # - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
   # redis:
   #   image: 
   #     redis:latest
@@ -54,3 +55,14 @@ networks:
   #     - /var/lib/postgresql
   #   command: 
   #     "true"
+networks: 
+  nginx_network:
+    driver:
+      bridge
+  db_pr_web_network:
+    driver:
+      bridge
+volumes:
+  db_pr_web_volume:
+  static_volume:
+  media_volume:

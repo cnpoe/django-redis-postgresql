@@ -16,5 +16,8 @@ RUN apk del -r python3-dev postgresql
 COPY . /data/web/
 
 RUN mkdir mydjango/static
+RUN mkdir mydjango/media
+
+RUN python3 manage.py collectstatic
 
 EXPOSE 8000

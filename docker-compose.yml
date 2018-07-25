@@ -41,8 +41,9 @@ services:
     networks:
       - db_pr_web_network
     volumes:
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      # - ./backups/postgresql:/backup
       - db_pr_web_volume:/var/lib/postgresql/data
-      # - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
   # redis:
   #   image: 
   #     redis:latest

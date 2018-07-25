@@ -11,8 +11,8 @@ services:
       postgres-variables.env
     volumes:
       - ./mydjango:/data/web
-      - static_volume:/data/web/mydjango/static
-      - media_volume:/data/web/mydjango/media
+      - static_volume:/data/web/static
+      - media_volume:/data/web/media
     command:
       gunicorn mydjango.wsgi:application -w 2 -b :8000
     networks: 
@@ -27,8 +27,8 @@ services:
       - "8000:80"
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d
-      - static_volume:/data/web/mydjango/static
-      - media_volume:/data/web/mydjango/media
+      - static_volume:/data/web/static
+      - media_volume:/data/web/media
     depends_on:
       - mydjango
     networks: 
